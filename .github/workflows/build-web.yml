@@ -3,6 +3,8 @@
 name: Build Web
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
   workflow_call:
 
@@ -10,11 +12,16 @@ env:
   EMSDK_VERSION: "4.0.11"
   GODOT_VERSION: "4.6.1"
   REGISTRY: ghcr.io
-  IMAGE_NAME: elgansayer/mohaa-godot
+  IMAGE_NAME: mohcentral/mohaa-godot
+
+concurrency:
+  group: web-production
+  cancel-in-progress: false
 
 jobs:
   build-web:
     runs-on: ubuntu-22.04
+    timeout-minutes: 45
     name: web-wasm32
     permissions:
       contents: read
@@ -98,7 +105,7 @@ jobs:
         run: |
           mkdir -p web
           cd project
-          godot --headless --export-debug "Web" ../web/mohaa.html 2>&1 || true
+          godot --headless --export-debug "Web" ../web/mohaa.html 2>&1
           test -f ../web/mohaa.html
 
       - name: Deploy cgame WASM
